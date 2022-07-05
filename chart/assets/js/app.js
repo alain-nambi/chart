@@ -25,12 +25,42 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import "../js/chart.js"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+
+let hooks = {}
+hooks.chart = {
+    mounted() {
+        var ctx = this.el.getContext('2d');
+        var chart = new Chart(ctx, {
+            // Le type de Chart que nous voulons créé
+            type: 'line',
+            // Les données de notre Chart
+            data: {
+                labels: ['January', 'February', 'March',
+                    'April', 'May', 'June', 'July'],
+                datasets: [{
+                    label: 'My First dataset',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: [0, 10, 5, 2, 20, 30, 45]
+                }]
+            },
+            // Les options de configuration se trouvent ici
+            options: {}
+        });
+        this.handleEvent("points", ({points}) => {
+            chart.data.datasets[0].data = points
+            chart.update()
+        })
+    }
+};
+
+let liveSocket = new LiveSocket("/live", Socket, { params: { _csrf_token: csrfToken }, hooks });
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+topbar.config({barColors: {0: "#e74c3c"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", info => topbar.show())
 window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 
