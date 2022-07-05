@@ -18,6 +18,8 @@ defmodule ChartWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    live "/chart", ChartLive
   end
 
   # Other scopes may use custom stacks.
